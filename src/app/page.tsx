@@ -7,15 +7,13 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 import { Post } from '@/store/usePlayerStore';
+import { DesktopHero } from '@/components/layout/DesktopHero';
+import { MobileHero } from '@/components/layout/MobileHero';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const { scrollY } = useScroll();
   
-  // 스크롤 시 문구가 점점 투명해지도록 설정 (0~200px 스크롤 시 투명도 1->0)
-  const opacity = useTransform(scrollY, [0, 200], [1, 0]);
-  const scale = useTransform(scrollY, [0, 200], [1, 0.95]);
-
   useEffect(() => {
     async function fetchPosts() {
       const { data } = await supabase
@@ -28,25 +26,18 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative pb-24 min-h-screen">
-      {/* Dynamic Hero Section */}
-      <motion.div 
-        style={{ opacity, scale }}
-        className="mb-12 mt-12 text-center space-y-6 pt-10"
-      >
-        <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9]">
-          Discover <br />
-          <span className="text-primary glow-text italic">Masterpieces</span>
-        </h1>
-        <p className="text-lg md:text-2xl text-muted-foreground/80 max-w-xl mx-auto font-medium tracking-tight">
-          Explore curated collections of sounds that define your vibe.
-        </p>
-      </motion.div>
+    <div className="relative pb-32 min-h-screen selection:bg-primary selection:text-white">
+      {/* Background Glow */}
+      <div className="fixed inset-0 premium-gradient pointer-events-none opacity-50" />
+      
+      {/* Responsive Hero Sections */}
+      <DesktopHero scrollY={scrollY} />
+      <MobileHero scrollY={scrollY} />
 
       {/* Main Feed Content */}
-      <div className="mt-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
         <HomeTabs initialPosts={posts} />
-      </div>
+      </main>
 
       <CreatePostModal />
     </div>

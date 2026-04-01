@@ -1,0 +1,19 @@
+Failed to compile.
+
+./src/app/api/youtube/popular/route.ts:32:36
+Type error: Argument of type '(video: YouTubeVideo, index: number) => { id: string; title: string; artist: string; youtube_url: string; thumbnail_url: string; rank: number; duration: string; }' is not assignable to parameter of type '(value: PlaylistItem, index: number, array: PlaylistItem[]) => { id: string; title: string; artist: string; youtube_url: string; thumbnail_url: string; rank: number; duration: string; }'.
+  Types of parameters 'video' and 'value' are incompatible.
+    Type 'PlaylistItem' is not assignable to type 'YouTubeVideo'.
+      Types of property 'thumbnail' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string'.
+          Type 'undefined' is not assignable to type 'string'.
+
+  30 |     }
+  31 |
+> 32 |     const videos = list.videos.map((video: YouTubeVideo, index: number) => {
+     |                                    ^
+  33 |       const fullTitle = video.title || 'Unknown Title';
+  34 |       const authorName = video.author?.name || 'Unknown Artist';
+  35 |       
+Next.js build worker exited with code: 1 and signal: null
+

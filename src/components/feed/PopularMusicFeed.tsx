@@ -2,111 +2,126 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Loader2, Music, ExternalLink } from 'lucide-react';
+import { PlayCircle, Music } from 'lucide-react';
 import Image from 'next/image';
 import { usePlayerStore, Post } from '@/store/usePlayerStore';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
-interface PopularMusic extends Post {
-  rank?: number;
+interface PopularMusic {
+  id: string;
+  title: string;
+  artist: string;
+  thumbnail_url: string;
+  youtube_url: string;
+  rank: number;
+  duration: string;
 }
 
 export function PopularMusicFeed() {
+  const [isMounted, setIsMounted] = useState(false);
   const [popularMusic, setPopularMusic] = useState<PopularMusic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { play } = usePlayerStore();
 
-  useEffect(() => {
-    async function fetchPopular() {
-      try {
-        const res = await fetch('/api/youtube/popular');
-        if (res.ok) {
-          const data = await res.json();
-          setPopularMusic(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch popular music', error);
-      } finally {
-        setLoading(false);
+  const fetchPopular = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/youtube/popular');
+      if (res.ok) {
+        const data = await res.json();
+        setPopularMusic(Array.isArray(data) ? data : []);
+      } else {
+        setError(`Failed to load charts: ${res.status}`);
       }
+    } catch (err) {
+      setError('Connection error');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
     fetchPopular();
   }, []);
 
+  if (!isMounted) return null;
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-6">
-        <div className="relative">
-          <Loader2 className="w-16 h-16 animate-spin text-primary opacity-20" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Music className="w-6 h-6 text-primary animate-pulse" />
-          </div>
-        </div>
-        <p className="text-xl font-bold tracking-tighter text-muted-foreground animate-pulse">Syncing with YouTube Charts...</p>
+      <div className="py-20 text-center animate-pulse">
+        <p className="text-primary font-black tracking-[.5em] uppercase text-xs">Syncing Global Wave...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-20 text-center text-destructive">
+        <p className="font-bold">{error}</p>
+        <button onClick={fetchPopular} className="mt-4 underline text-sm">Retry</button>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-      <AnimatePresence>
+    <div className="w-full space-y-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
         {popularMusic.map((music, index) => (
-          <motion.div
-            key={music.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.03 }}
-            whileHover={{ scale: 1.02 }}
+          <Card 
+            key={music.id || index}
+            className="group relative overflow-hidden bg-white/[0.03] hover:bg-white/[0.08] border-white/5 hover:border-primary/50 transition-all duration-500 cursor-pointer flex h-24 md:h-28 shadow-2xl"
+            onClick={() => play({
+              id: music.id,
+              title: music.title,
+              artist: music.artist,
+              thumbnail_url: music.thumbnail_url,
+              youtube_url: music.youtube_url,
+              description: `YouTube Popular #${music.rank || index + 1}`,
+              user_id: "youtube_charts",
+            } as Post)}
           >
-            <Card 
-              className="relative overflow-hidden bg-secondary/5 border border-white/5 hover:border-primary/20 transition-all duration-300 group cursor-pointer flex h-32 backdrop-blur-md"
-              onClick={() => play({
-                id: music.id,
-                title: music.title,
-                artist: music.artist,
-                description: `Trending at #${music.rank || index + 1} on YouTube Charts`,
-                thumbnail_url: music.thumbnail_url,
-                youtube_url: music.youtube_url,
-                user_id: "youtube_charts",
-              } as Post)}
-            >
-              {/* Rank Number Background */}
-              <div className="absolute -left-2 -top-4 text-9xl font-black text-white/[0.03] italic pointer-events-none group-hover:text-primary/[0.05] transition-colors">
-                {music.rank || index + 1}
-              </div>
+            {/* Rank Tag */}
+            <div className="absolute top-0 left-0 z-20 bg-primary/90 text-black text-[9px] font-black px-1.5 py-0.5 tracking-tighter">
+              RANK {music.rank || index + 1}
+            </div>
 
-              {/* Thumbnail Container */}
-              <div className="relative h-full aspect-square overflow-hidden shrink-0">
+            {/* Thumbnail */}
+            <div className="relative w-32 md:w-40 h-full bg-black shrink-0 overflow-hidden">
+              {music.thumbnail_url && (
                 <Image 
                   src={music.thumbnail_url} 
                   alt={music.title} 
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                  sizes="160px"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors flex items-center justify-center">
-                  <PlayCircle className="w-10 h-10 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-2xl" />
-                </div>
-              </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60 md:hidden" />
+            </div>
 
-              {/* Content Container */}
-              <div className="flex flex-col justify-center px-6 py-4 flex-grow min-w-0 bg-gradient-to-r from-transparent to-white/[0.02]">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-primary text-[10px] font-black uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded">
-                    Rank #{music.rank || index + 1}
-                  </span>
-                </div>
-                <h3 className="text-lg font-black text-foreground line-clamp-1 group-hover:text-primary transition-colors">{music.title}</h3>
-                <p className="text-sm font-bold text-muted-foreground/80 line-clamp-1">{music.artist}</p>
+            {/* Track Metadata */}
+            <div className="flex flex-col justify-center p-4 min-w-0 flex-grow relative bg-black/40 backdrop-blur-sm md:bg-transparent">
+              <h3 className="font-bold text-white truncate text-sm md:text-base leading-tight group-hover:text-primary transition-colors">
+                {music.title}
+              </h3>
+              <div className="flex items-center gap-2 mt-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                <p className="text-[10px] md:text-xs text-primary font-black uppercase tracking-wider truncate">
+                  {music.artist}
+                </p>
+                <div className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-[9px] text-white/40 font-bold">YOUTUBE</span>
               </div>
-
-              {/* Right Indicator */}
-              <div className="flex items-center px-4 text-muted-foreground/20 group-hover:text-primary/40">
-                <ExternalLink className="w-5 h-5" />
-              </div>
-            </Card>
-          </motion.div>
+            </div>
+            
+            {/* Hover Indicator */}
+            <div className="absolute bottom-0 left-0 h-[2px] bg-primary w-0 group-hover:w-full transition-all duration-500" />
+          </Card>
         ))}
-      </AnimatePresence>
+      </div>
+      <div className="h-24" /> {/* Footer Padding */}
     </div>
   );
 }

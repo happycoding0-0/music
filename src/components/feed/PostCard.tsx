@@ -14,9 +14,10 @@ import { usePlayerStore, Post } from '@/store/usePlayerStore';
 
 interface PostProps {
   post: Post;
+  priority?: boolean;
 }
 
-export function PostCard({ post }: PostProps) {
+export function PostCard({ post, priority }: PostProps) {
   const { user } = useAuthStore();
   const { play } = usePlayerStore();
   const router = useRouter();
@@ -59,6 +60,8 @@ export function PostCard({ post }: PostProps) {
               src={post.thumbnail_url} 
               alt={post.title} 
               fill
+              priority={priority}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
             />
           ) : (
