@@ -35,3 +35,4 @@ next-env.d.ts
 # logs & temporary files
 tsc.log
 /tmp/
+/docs/
