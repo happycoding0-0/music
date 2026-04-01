@@ -1,0 +1,24 @@
+
+> temp-app@0.1.0 build
+> next build
+
+  ??Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ??Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/components/feed/CreatePostModal.tsx:103:22
+Type error: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & Props<unknown>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & Props<unknown>'.
+
+  101 |   return (
+  102 |     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+> 103 |       <DialogTrigger asChild>
+      |                      ^
+  104 |         <Button className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl drop-shadow-2xl hover:scale-105 active:scale-95 transition-all p-0 bg-primary hover:bg-primary/90 text-primary-foreground">
+  105 |           <PlusCircle className="w-8 h-8" />
+  106 |         </Button>
+Next.js build worker exited with code: 1 and signal: null

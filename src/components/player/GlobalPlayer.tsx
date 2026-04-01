@@ -1,13 +1,13 @@
 'use client';
 import { usePlayerStore } from '@/store/usePlayerStore';
-import { Play, Pause, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
 export function GlobalPlayer() {
-  const { currentPost, isPlaying, play, pause, resume, close } = usePlayerStore();
+  const { currentPost, close } = usePlayerStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

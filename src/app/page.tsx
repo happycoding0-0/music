@@ -6,8 +6,10 @@ import { HomeTabs } from '@/components/feed/HomeTabs';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
+import { Post } from '@/store/usePlayerStore';
+
 export default function Home() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const { scrollY } = useScroll();
   
   // 스크롤 시 문구가 점점 투명해지도록 설정 (0~200px 스크롤 시 투명도 1->0)
@@ -20,7 +22,7 @@ export default function Home() {
         .from('music_posts')
         .select('*')
         .order('created_at', { ascending: false });
-      setPosts(data || []);
+      setPosts((data as Post[]) || []);
     }
     fetchPosts();
   }, []);

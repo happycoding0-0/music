@@ -12,7 +12,6 @@ const nextConfig = {
       }
     ],
   },
-  serverExternalPackages: ['yt-search', 'cheerio'],
 };
 
 export default nextConfig;

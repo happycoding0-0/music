@@ -1,0 +1,25 @@
+  ??Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ??Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/components/ui/dialog.tsx:19:5
+Type error: Type 'ForwardedRef<HTMLElement>' is not assignable to type '((((instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLButtonElement>) & (string | ... 1 more ... | RefObject<...>)) | null | undefined'.
+  Type 'MutableRefObject<HTMLElement | null>' is not assignable to type '((((instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLButtonElement>) & (string | ... 1 more ... | RefObject<...>)) | null | undefined'.
+    Type 'MutableRefObject<HTMLElement | null>' is not assignable to type 'RefObject<HTMLButtonElement> & RefObject<HTMLElement>'.
+      Type 'MutableRefObject<HTMLElement | null>' is not assignable to type 'RefObject<HTMLButtonElement>'.
+        Types of property 'current' are incompatible.
+          Type 'HTMLElement | null' is not assignable to type 'HTMLButtonElement | null'.
+            Type 'HTMLElement' is missing the following properties from type 'HTMLButtonElement': disabled, form, formAction, formEnctype, and 15 more.
+
+  17 | >(({ className, ...props }, ref) => (
+  18 |   <DialogPrimitive.Trigger
+> 19 |     ref={ref}
+     |     ^
+  20 |     data-slot="dialog-trigger"
+  21 |     className={className}
+  22 |     {...props}
+Next.js build worker exited with code: 1 and signal: null

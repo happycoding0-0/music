@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Award, Loader2, Music, ExternalLink } from 'lucide-react';
+import { PlayCircle, Loader2, Music, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { usePlayerStore, Post } from '@/store/usePlayerStore';
 import { Card } from '@/components/ui/card';
 
+interface PopularMusic extends Post {
+  rank?: number;
+}
+
 export function PopularMusicFeed() {
-  const [popularMusic, setPopularMusic] = useState<any[]>([]);
+  const [popularMusic, setPopularMusic] = useState<PopularMusic[]>([]);
   const [loading, setLoading] = useState(true);
   const { play } = usePlayerStore();
 

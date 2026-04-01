@@ -52,7 +52,7 @@ export function CreatePostModal() {
     if (formData.youtube_url && !formData.title && !formData.artist) {
       fetchMetadata(formData.youtube_url);
     }
-  }, [formData.youtube_url]);
+  }, [formData.youtube_url, formData.title, formData.artist]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,11 +100,13 @@ export function CreatePostModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl drop-shadow-2xl hover:scale-105 active:scale-95 transition-all p-0 bg-primary hover:bg-primary/90 text-primary-foreground">
-          <PlusCircle className="w-8 h-8" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger 
+        render={
+          <Button className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl drop-shadow-2xl hover:scale-105 active:scale-95 transition-all p-0 bg-primary hover:bg-primary/90 text-primary-foreground">
+            <PlusCircle className="w-8 h-8" />
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold tracking-tight">Share Music</DialogTitle>

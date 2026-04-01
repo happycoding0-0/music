@@ -3,12 +3,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PostCard } from './PostCard';
 import { PopularMusicFeed } from './PopularMusicFeed';
-import { Music, TrendingUp, Sparkles } from 'lucide-react';
+import { TrendingUp, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { Post } from '@/store/usePlayerStore';
 
 interface HomeTabsProps {
-  initialPosts: any[];
+  initialPosts: Post[];
 }
 
 export function HomeTabs({ initialPosts }: HomeTabsProps) {
@@ -62,36 +63,33 @@ export function HomeTabs({ initialPosts }: HomeTabsProps) {
 
       <div className="px-4 md:px-0">
         <AnimatePresence mode="wait">
-          <TabsContent value="curated" className="mt-0 focus-visible:outline-none focus:outline-none border-none outline-none">
+          <TabsContent 
+            value={activeTab} 
+            key={activeTab}
+            className="mt-0 focus-visible:outline-none focus:outline-none border-none outline-none"
+          >
             <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
             >
-              {!initialPosts || initialPosts.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-32 opacity-60">
-                  <p className="text-3xl font-black mb-3 text-center">No masterpieces yet.</p>
-                  <p className="text-lg">Be the first to share one!</p>
-                </div>
+              {activeTab === 'curated' ? (
+                !initialPosts || initialPosts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-32 opacity-60">
+                    <p className="text-3xl font-black mb-3 text-center">No masterpieces yet.</p>
+                    <p className="text-lg">Be the first to share one!</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
+                    {initialPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                )
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
-                  {initialPosts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
+                <PopularMusicFeed />
               )}
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="popular" className="mt-0 focus-visible:outline-none focus:outline-none border-none outline-none">
-            <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.3 }}
-            >
-              <PopularMusicFeed />
             </motion.div>
           </TabsContent>
         </AnimatePresence>

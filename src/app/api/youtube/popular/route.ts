@@ -15,13 +15,27 @@ export async function GET() {
     const entries = text.match(/<entry>[\s\S]*?<\/entry>/g) || [];
     const videos = entries.map((entry, index) => {
       const videoId = entry.match(/<yt:videoId>(.*?)<\/yt:videoId>/)?.[1] || '';
-      const title = entry.match(/<title>(.*?)<\/title>/)?.[1] || 'Unknown Title';
-      const artist = entry.match(/<name>(.*?)<\/name>/)?.[1] || 'Unknown Artist';
+      const fullTitle = entry.match(/<title>(.*?)<\/title>/)?.[1] || 'Unknown Title';
+      const authorName = entry.match(/<name>(.*?)<\/name>/)?.[1] || 'Unknown Artist';
       
+      // Try to split artist and title if the format is "Artist - Title"
+      let artist = authorName;
+      let title = fullTitle;
+      
+      if (fullTitle.includes(' - ')) {
+        [artist, title] = fullTitle.split(' - ');
+      } else if (fullTitle.includes(' – ')) {
+        [artist, title] = fullTitle.split(' – ');
+      }
+      
+      // Clean up common MV suffixes
+      title = title.replace(/Official MV/gi, '').replace(/M\/V/gi, '').replace(/\[MV\]/gi, '').trim();
+      artist = artist.replace(/\[MV\]/gi, '').trim();
+
       return {
         id: videoId || `chart-${index}`,
-        title,
-        artist,
+        title: title || fullTitle,
+        artist: artist || authorName,
         youtube_url: `https://www.youtube.com/watch?v=${videoId}`,
         thumbnail_url: videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '',
         rank: index + 1

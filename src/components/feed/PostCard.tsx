@@ -10,18 +10,10 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { EditPostModal } from './EditPostModal';
 import { useState } from 'react';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore, Post } from '@/store/usePlayerStore';
 
 interface PostProps {
-  post: {
-    id: string;
-    title: string;
-    artist: string;
-    description: string;
-    thumbnail_url: string;
-    youtube_url: string;
-    user_id: string;
-  };
+  post: Post;
 }
 
 export function PostCard({ post }: PostProps) {
@@ -59,7 +51,7 @@ export function PostCard({ post }: PostProps) {
     >
       <Card 
         className="h-full overflow-hidden bg-secondary/5 border border-white/5 hover:border-primary/30 transition-all duration-500 group cursor-pointer shadow-none hover:shadow-[0_20px_50px_rgba(var(--primary-rgb),0.15)] flex flex-col backdrop-blur-sm"
-        onClick={() => play(post as any)}
+        onClick={() => play(post)}
       >
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/40">
           {post.thumbnail_url ? (

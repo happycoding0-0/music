@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/lib/supabase';
@@ -28,7 +28,7 @@ export function EditPostModal({ post }: EditPostModalProps) {
   const [formData, setFormData] = useState({
     title: post.title,
     artist: post.artist,
-    description: post.description,
+    description: post.description || '',
     youtube_url: post.youtube_url,
   });
 
@@ -134,7 +134,6 @@ export function EditPostModal({ post }: EditPostModalProps) {
               placeholder="Tell us why this song is great..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              required
               className="w-full h-28 p-4 bg-secondary/50 text-black rounded-xl outline-none focus:ring-1 focus:ring-primary text-sm resize-none transition-all"
             />
           </div>
