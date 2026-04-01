@@ -1,12 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Music } from 'lucide-react';
 import Image from 'next/image';
 import { usePlayerStore, Post } from '@/store/usePlayerStore';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 interface PopularMusic {
   id: string;
@@ -35,7 +32,7 @@ export function PopularMusicFeed() {
       } else {
         setError(`Failed to load charts: ${res.status}`);
       }
-    } catch (err) {
+    } catch (fetchError) {
       setError('Connection error');
     } finally {
       setLoading(false);

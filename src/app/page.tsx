@@ -3,7 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { CreatePostModal } from '@/components/feed/CreatePostModal';
 import { HomeTabs } from '@/components/feed/HomeTabs';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useScroll } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 import { Post } from '@/store/usePlayerStore';

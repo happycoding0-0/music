@@ -28,12 +28,10 @@ export async function GET() {
     let dataJson = '';
     const startPatterns = ['var ytInitialData =', 'window["ytInitialData"] =', 'window[' + "'" + 'ytInitialData' + "'" + '] ='];
     let startIndex = -1;
-    let patternUsed = '';
 
     for (const pattern of startPatterns) {
       startIndex = html.indexOf(pattern);
       if (startIndex !== -1) {
-        patternUsed = pattern;
         break;
       }
     }
@@ -59,22 +57,37 @@ export async function GET() {
     let data;
     try {
       data = JSON.parse(dataJson);
-    } catch (e) {
+    } catch (parseError) {
       console.error('JSON Parse error for ytInitialData');
       return NextResponse.json({ error: 'Failed to parse YouTube data' }, { status: 500 });
     }
     
     // Robustly find all playlistVideoRenderer objects in the JSON tree
-    const videoRenderers: any[] = [];
-    const findVideos = (obj: any) => {
+    // Define local interfaces for the recursive parser
+    interface YouTubeRenderer {
+      playlistVideoRenderer?: {
+        videoId: string;
+        title?: { runs?: { text: string }[] };
+        shortBylineText?: { runs?: { text: string }[] };
+        thumbnail?: { thumbnails?: { url: string }[] };
+        lengthText?: { simpleText: string };
+      };
+      [key: string]: unknown;
+    }
+
+    const videoRenderers: YouTubeRenderer['playlistVideoRenderer'][] = [];
+    const findVideos = (obj: unknown) => {
       if (!obj || typeof obj !== 'object') return;
-      if (obj.playlistVideoRenderer) {
-        videoRenderers.push(obj.playlistVideoRenderer);
+      
+      const nominee = obj as YouTubeRenderer;
+      if (nominee.playlistVideoRenderer) {
+        videoRenderers.push(nominee.playlistVideoRenderer);
         return;
       }
-      for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          findVideos(obj[key]);
+      
+      for (const key in nominee) {
+        if (Object.prototype.hasOwnProperty.call(nominee, key)) {
+          findVideos(nominee[key]);
         }
       }
     };
@@ -86,31 +99,32 @@ export async function GET() {
       return NextResponse.json({ error: 'No videos found in playlist' }, { status: 404 });
     }
 
-    const videos = videoRenderers.map((video: any, index: number) => {
+    const videos = videoRenderers.map((video, index) => {
+      if (!video) return null;
       const videoId = video.videoId;
       const fullTitle = video.title?.runs?.[0]?.text || 'Unknown Title';
       const authorName = video.shortBylineText?.runs?.[0]?.text || 'Unknown Artist';
       
       // Get the highest resolution thumbnail
       const thumbnails = video.thumbnail?.thumbnails || [];
-      const thumbnail = thumbnails.length > 0 ? thumbnails[thumbnails.length - 1].url : `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+      const thumbnailUrl = thumbnails.length > 0 ? thumbnails[thumbnails.length - 1].url : `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
       
-      const duration = video.lengthText?.simpleText || '0:00';
+      const durationText = video.lengthText?.simpleText || '0:00';
 
-      let artist = authorName;
-      let title = fullTitle;
+      let videoArtist = authorName;
+      let videoTitle = fullTitle;
       
       if (fullTitle.includes(' - ')) {
         const parts = fullTitle.split(' - ');
-        artist = parts[0].trim();
-        title = parts.slice(1).join(' - ').trim();
+        videoArtist = parts[0].trim();
+        videoTitle = parts.slice(1).join(' - ').trim();
       } else if (fullTitle.includes(' – ')) {
         const parts = fullTitle.split(' – ');
-        artist = parts[0].trim();
-        title = parts.slice(1).join(' – ').trim();
+        videoArtist = parts[0].trim();
+        videoTitle = parts.slice(1).join(' – ').trim();
       }
       
-      title = title
+      const sanitizedTitle = videoTitle
         .replace(/\(Official MV\)/gi, '')
         .replace(/\[Official MV\]/gi, '')
         .replace(/\(M\/V\)/gi, '')
@@ -122,22 +136,23 @@ export async function GET() {
 
       return {
         id: videoId,
-        title: title || fullTitle,
-        artist: artist || authorName,
+        title: sanitizedTitle || fullTitle,
+        artist: videoArtist || authorName,
         youtube_url: `https://www.youtube.com/watch?v=${videoId}`,
-        thumbnail_url: thumbnail,
+        thumbnail_url: thumbnailUrl,
         rank: index + 1,
-        duration: duration
+        duration: durationText
       };
-    });
+    }).filter(v => v !== null);
 
     console.log(`Successfully extracted ${videos.length} videos from YouTube using robust search`);
     return NextResponse.json(videos);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Popular music fetch error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
       error: 'Failed to fetch popular charts', 
-      message: error.message 
+      message: errorMessage 
     }, { status: 500 });
   }
 }
