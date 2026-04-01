@@ -57,7 +57,7 @@ export async function GET() {
     let data;
     try {
       data = JSON.parse(dataJson);
-    } catch (parseError) {
+    } catch {
       console.error('JSON Parse error for ytInitialData');
       return NextResponse.json({ error: 'Failed to parse YouTube data' }, { status: 500 });
     }

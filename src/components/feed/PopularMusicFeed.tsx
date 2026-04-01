@@ -32,7 +32,7 @@ export function PopularMusicFeed() {
       } else {
         setError(`Failed to load charts: ${res.status}`);
       }
-    } catch (fetchError) {
+    } catch {
       setError('Connection error');
     } finally {
       setLoading(false);
